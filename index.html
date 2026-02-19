@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Редактор статей</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Стили -->
+  <link href="css/style.css" rel="stylesheet">
+  
+  <!-- Библиотеки -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="main-content">
+      <!-- ОСНОВНОЕ ОКНО РЕДАКТОРА -->
+      <div class="glass-card editor-card">
+        <!-- Шапка -->
+        <div class="editor-header">
+          <h1 class="editor-title">Редактор статей</h1>
+          <span class="version-badge">Dev Build</span>
+        </div>
+
+        <!-- ОБЯЗАТЕЛЬНЫЕ ПОЛЯ -->
+        <div class="section">
+          <h2 class="section-title">Основное</h2>
+          
+          <div class="field-group">
+            <label class="field-label">Название статьи <span class="required-star">*</span></label>
+            <input type="text" id="article-title" class="glass-input" placeholder="Например: Долгожданный релиз мода" value="Заголовок новости">
+          </div>
+          
+          <div class="field-group">
+            <label class="field-label">Превью-картинка <span class="required-star">*</span></label>
+            <div class="upload-area" id="preview-upload-area">
+              <span class="upload-placeholder" id="preview-placeholder">+ Перетащите изображение или нажмите для выбора</span>
+              <input type="file" id="preview-upload" accept="image/*" hidden>
+              <img id="preview-image" class="preview-image hidden" src="" alt="Превью">
+            </div>
+            <button id="remove-preview-btn" class="secondary-button">Удалить превью</button>
+          </div>
+        </div>
+
+        <!-- ТЕГ СТАТЬИ -->
+        <div class="section">
+          <h2 class="section-title">Тег</h2>
+          <div class="field-group">
+            <div class="custom-combobox">
+              <div class="combobox-selected" id="combobox-selected">
+                <span id="selected-tag-text">РЕЛИЗ</span>
+                <span class="combobox-arrow">▼</span>
+              </div>
+              <div class="combobox-dropdown hidden" id="combobox-dropdown">
+                <div class="combobox-option" data-tag="РЕЛИЗ">РЕЛИЗ</div>
+                <div class="combobox-option" data-tag="СЕРВЕР">СЕРВЕР</div>
+                <div class="combobox-option" data-tag="ПРЕВЬЮ">ПРЕВЬЮ</div>
+                <div class="combobox-option custom-option" data-tag="custom">✏️ Свой вариант...</div>
+              </div>
+            </div>
+            <input type="text" id="custom-tag-input" class="glass-input hidden" placeholder="Введите свой тег" maxlength="30">
+          </div>
+        </div>
+
+        <!-- БЛОКИ -->
+        <div class="section">
+          <h2 class="section-title">Содержание</h2>
+          <div id="blocks-container" class="blocks-container"></div>
+        </div>
+
+        <!-- КНОПКА ОТПРАВКИ -->
+        <div class="action-bar">
+          <button id="publish-btn" class="primary-button">📤 Опубликовать</button>
+        </div>
+      </div>
+
+      <!-- ОТДЕЛЬНАЯ МЕТА-СЕКЦИЯ -->
+      <div class="glass-card meta-section">
+        <h2 class="section-title">📋 Данные для экспорта</h2>
+        <div class="meta-grid">
+          <div class="field-group">
+            <label class="field-label">Автор</label>
+            <input type="text" id="meta-author" class="glass-input" placeholder="Иван Иванов" value="Редактор">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Слаг (URL)</label>
+            <input type="text" id="meta-slug" class="glass-input" placeholder="nazvanie-novosti" value="zagolovok-novosti">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Краткое описание</label>
+            <textarea id="meta-description" class="glass-textarea" placeholder="Краткое описание статьи..." rows="2">Краткое описание новости</textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Время публикации</label>
+            <input type="datetime-local" id="meta-time" class="glass-input">
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ФУТЕР -->
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>Редактор новости</h4>
+          <p>При помощи данного редактора новостей можно писать новости, которые будут отображаться в PPLauncher</p>
+        </div>
+        <div class="footer-section">
+          <h4>Какие то файлы</h4>
+          <ul>
+            <li><a href="#">Руководство</a></li>
+            <li><a href="#">Репозиторий проекта</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Полезные ссылки</h4>
+          <ul>
+            <li><a href="#">Сайт PointPixel</a></li>
+            <li><a href="#">Сайт PPLab</a></li>
+            <li><a href="#">Разработчик</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Права</h4>
+          <p>© 2026 PPLab.<br>Все права защищены.</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Project PPLab Create News </p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ПАНЕЛЬ СТАТИСТИКИ -->
+  <div id="stats-panel" class="stats-panel">
+    <div class="stats-header">
+      <div class="stats-title">
+        <span>📊</span> Статистика
+      </div>
+    </div>
+    <div class="stats-content">
+      <div class="stat-item">
+        <span class="stat-label"><span>📦</span> Всего блоков</span>
+        <span class="stat-value" id="stat-total-blocks">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><span>📄</span> Текст</span>
+        <span class="stat-value" id="stat-text-blocks">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><span>🖼️</span> Изображения</span>
+        <span class="stat-value" id="stat-image-blocks">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><span>🎠</span> Карусели</span>
+        <span class="stat-value" id="stat-carousel-blocks">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><span>📊</span> Таблицы</span>
+        <span class="stat-value" id="stat-table-blocks">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><span>🎬</span> Видео</span>
+        <span class="stat-value" id="stat-video-blocks">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><span>❝</span> Цитаты</span>
+        <span class="stat-value" id="stat-quote-blocks">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><span>{ }</span> Код</span>
+        <span class="stat-value" id="stat-code-blocks">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><span>✓</span> Списки</span>
+        <span class="stat-value" id="stat-list-blocks">0</span>
+      </div>
+      <div class="stat-item highlight">
+        <span class="stat-label"><span>📝</span> Всего слов</span>
+        <span class="stat-value" id="stat-words">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><span>⏱️</span> Время чтения</span>
+        <span class="stat-value" id="stat-read-time">0 мин</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Скрипты -->
+  <script src="js/utils.js"></script>
+  <script src="js/blocks.js"></script>
+  <script src="js/blocks-content.js"></script>
+  <script src="js/formatting.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
