@@ -46,13 +46,6 @@ function init() {
   initFloatingDock();
   initPreviewModal();
   initSendButton();
-  
-  // Демо-блоки
-  blocks.push({
-    id: Date.now() + 1,
-    type: 'text',
-    content: 'Пример текстового блока. Здесь можно писать что угодно.'
-  });
 
   // Рендерим блоки
   renderBlocks();
@@ -131,7 +124,6 @@ function initPreviewUpload() {
       fileInput.value = '';
       window.showNotification('🗑️ Превью удалено', 'success');
       
-      // Сохраняем в localStorage если есть функция
       if (typeof saveDraft === 'function') saveDraft();
     });
   }
@@ -224,52 +216,6 @@ function initPreviewUpload() {
       }
     });
   }
-
-  // ========== ПРЕДПРОСМОТР ==========
-  function initPreviewModal() {
-    const previewBtn = document.getElementById('preview-btn');
-    if (!previewBtn) return;
-    
-    previewBtn.addEventListener('click', function() {
-      previewRender.innerHTML = generatePreview();
-      previewModal.classList.remove('hidden');
-    });
-
-    closePreview.addEventListener('click', () => {
-      previewModal.classList.add('hidden');
-    });
-  }
-
-  function generatePreview() {
-  const title = document.getElementById('article-title').value;
-  const previewImage = document.getElementById('preview-image');
-  const tag = window.currentTag || 'РЕЛИЗ';
-  const date = new Date().toLocaleString('ru-RU');
-  
-  let blocksHTML = '';
-  
-  if (window.blocks && window.blocks.length > 0) {
-    window.blocks.forEach(block => {
-      if (block.type === 'text') {
-        blocksHTML += `<div style="margin: 20px 0; padding: 20px; background: var(--bg-element); border-radius: var(--radius-md);">${block.content || ''}</div>`;
-      }
-    });
-  }
-  
-  return `
-    <div style="padding: 20px; background: var(--glass-bg); border-radius: var(--radius-lg);">
-      <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-        <span style="background: var(--accent-blue); padding: 6px 16px; border-radius: 30px; font-size: 0.9rem;">${tag}</span>
-        <span style="background: var(--bg-element); padding: 6px 16px; border-radius: 30px; font-size: 0.9rem;">${date}</span>
-      </div>
-      <h1 style="font-size: 2rem; margin-bottom: 20px;">${title}</h1>
-      ${previewImage.src && !previewImage.classList.contains('hidden') 
-        ? `<img src="${previewImage.src}" style="width: 100%; border-radius: var(--radius-md); margin-bottom: 20px;">` 
-        : ''}
-      ${blocksHTML || '<p style="color: var(--text-secondary);">Нет контента</p>'}
-    </div>
-  `;
-}
 
   // Запуск
   init();

@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Редактор статей | macOS Tahoe</title>
+  <title>Редактор новостей</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="css/style.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -14,8 +14,8 @@
       <!-- ОСНОВНАЯ КАРТОЧКА -->
       <div class="glass-card editor-card">
         <div class="editor-header">
-          <h1 class="editor-title">Редактор статей</h1>
-          <span class="version-badge">v2.0 · macOS Tahoe</span>
+          <h1 class="editor-title">Редактор новостей</h1>
+          <span class="version-badge">1.0 Release</span>
         </div>
 
         <!-- ОСНОВНЫЕ ПОЛЯ -->
@@ -27,7 +27,7 @@
               <span class="field-icon"></span>
               Название статьи <span class="required-star">*</span>
             </label>
-            <input type="text" id="article-title" class="glass-input" placeholder="Например: Долгожданный релиз мода" value="Заголовок новости">
+            <input type="text" id="article-title" class="glass-input" placeholder="Например: Обзор..." value="">
           </div>
           
           <div class="field-group">
@@ -36,7 +36,7 @@
               Превью-картинка <span class="required-star">*</span>
             </label>
             <div class="upload-area" id="preview-upload-area">
-              <span class="upload-placeholder" id="preview-placeholder">+ Перетащите изображение или нажмите для выбора</span>
+              <span class="upload-placeholder" id="preview-placeholder">Нажмите для выбора(Drag&Drop в разработке)</span>
               <input type="file" id="preview-upload" accept="image/*" hidden>
               <img id="preview-image" class="preview-image hidden" src="" alt="Превью">
             </div>
@@ -66,10 +66,6 @@
                   <span class="option-icon"></span>
                   ПРЕВЬЮ
                 </div>
-                <div class="combobox-option custom-option" data-tag="custom">
-                  <span class="option-icon"></span>
-                  ✏️ Свой вариант...
-                </div>
               </div>
             </div>
             <input type="text" id="custom-tag-input" class="glass-input hidden" placeholder="Введите свой тег" maxlength="30">
@@ -84,7 +80,7 @@
 
         <!-- КНОПКА ОТПРАВКИ -->
         <div class="action-bar">
-          <button id="publish-btn" class="primary-button">📤 Отправить</button>
+          <button id="publish-btn" class="primary-button">Публикация</button>
         </div>
       </div>
 
@@ -100,15 +96,15 @@
               <span class="meta-icon"></span>
               Автор
             </label>
-            <input type="text" id="meta-author" class="glass-input" placeholder="Иван Иванов" value="Редактор">
+            <input type="text" id="meta-author" class="glass-input" placeholder="Your name" value="">
           </div>
           
           <div class="meta-item">
             <label class="meta-label">
               <span class="meta-icon"></span>
-              Слаг (URL)
+             URL на картинку
             </label>
-            <input type="text" id="meta-slug" class="glass-input" placeholder="nazvanie-novosti" value="zagolovok-novosti">
+            <input type="text" id="meta-slug" class="glass-input" placeholder="URL" value="">
           </div>
           
           <div class="meta-item">
@@ -116,7 +112,7 @@
               <span class="meta-icon"></span>
               Краткое описание
             </label>
-            <textarea id="meta-description" class="glass-textarea" placeholder="Краткое описание статьи..." rows="2">Краткое описание новости</textarea>
+            <textarea id="meta-description" class="glass-textarea" placeholder="Краткое описание статьи..." rows="2"></textarea>
           </div>
           
           <div class="meta-item">
@@ -135,52 +131,31 @@
       <div class="footer-content">
         <div class="footer-section">
           <h4>Редактор статей</h4>
-          <p>Профессиональный инструмент для создания контента в стиле macOS Tahoe.</p>
+          <p>При помощи данного редактора новостей можно писать новости, которые будут отображаться в PPLauncher</p>
         </div>
         <div class="footer-section">
-          <h4>Документация</h4>
+          <h4>Какие-то файлы</h4>
           <ul>
             <li><a href="#">Руководство</a></li>
-            <li><a href="#">Горячие клавиши</a></li>
-            <li><a href="#">Форматы блоков</a></li>
           </ul>
         </div>
         <div class="footer-section">
           <h4>Ссылки</h4>
           <ul>
-            <li><a href="#">Главная</a></li>
-            <li><a href="#">Все статьи</a></li>
-            <li><a href="#">Поддержка</a></li>
+            <li><a href="#">Сайт PointPixel</a></li>
+            <li><a href="#">Сайт PPLab</a></li>
+            <li><a href="#">Разработчики</a></li>
           </ul>
         </div>
         <div class="footer-section">
           <h4>Права</h4>
-          <p>© 2026 Редактор статей.<br>Все права защищены.</p>
+          <p>© 2026 PPLab.<br>Все права защищены.</p>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>Сделано с ❤️ в стиле macOS Tahoe</p>
+        <p>Made by Laun4er. For PPLab. Proj Editor News</p>
       </div>
     </footer>
-  </div>
-
-  <!-- МОДАЛКА ПРЕДПРОСМОТРА -->
-  <div id="preview-modal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>🔍 Предпросмотр</h2>
-        <div class="device-bar">
-          <button class="device-btn active" data-device="desktop">💻 Desktop</button>
-          <button class="device-btn" data-device="tablet">📱 Tablet</button>
-          <button class="device-btn" data-device="mobile">📱 Mobile</button>
-        </div>
-        <button id="close-preview" class="modal-close">✕</button>
-      </div>
-      
-      <div id="preview-frame" class="preview-frame desktop">
-        <div id="preview-render"></div>
-      </div>
-    </div>
   </div>
 
   <!-- ПАНЕЛЬ СТАТИСТИКИ -->
