@@ -27,64 +27,156 @@ document.addEventListener('DOMContentLoaded', function() {
   window.blocks = [];
 
   // ========== ИНИЦИАЛИЗАЦИЯ ==========
-  function init() {
-    // Установить время по умолчанию
-    const now = new Date();
-    metaTime.value = now.toISOString().slice(0, 16);
-
-    // Инициализация модулей
-    initPreviewUpload();
-    initCombobox();
-    initFloatingDock();
-    initPreviewModal();
-    initSendButton();
-    
-    // Демо-блоки
-    blocks.push({
-      id: Date.now() + 1,
-      type: 'text',
-      content: 'Пример текстового блока. Здесь можно писать что угодно.'
-    });
-
-    // Рендерим
-    renderBlocks();
-    
-    // Статистика
-    if (typeof setupStats === 'function') setupStats();
-    if (typeof updateStats === 'function') updateStats();
-    
-    // Эффекты
-    if (typeof addMinimalRipple === 'function') addMinimalRipple();
-    
-    window.showNotification('✅ Редактор готов', 'success');
+function init() {
+  // Установить время по умолчанию
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  
+  if (metaTime) {
+    metaTime.value = `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
-  // ========== ПРЕВЬЮ ЗАГРУЗКА ==========
-  function initPreviewUpload() {
-    previewUploadArea.addEventListener('click', () => previewUpload.click());
-    
-    previewUpload.addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-          previewImage.src = ev.target.result;
-          previewImage.classList.remove('hidden');
-          previewUploadArea.style.display = 'none';
-          window.showNotification('✅ Превью загружено', 'success');
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+  // Инициализация модулей
+  initPreviewUpload();
+  initCombobox();
+  initFloatingDock();
+  initPreviewModal();
+  initSendButton();
+  
+  // Демо-блоки
+  blocks.push({
+    id: Date.now() + 1,
+    type: 'text',
+    content: 'Пример текстового блока. Здесь можно писать что угодно.'
+  });
 
-    removePreviewBtn.addEventListener('click', function() {
+  // Рендерим блоки
+  renderBlocks();
+  
+  // Статистика
+  if (typeof setupStats === 'function') setupStats();
+  if (typeof updateStats === 'function') updateStats();
+  
+  // Эффекты
+  if (typeof addMinimalRipple === 'function') addMinimalRipple();
+  
+  window.showNotification('✅ Редактор готов', 'success');
+}
+  // ========== ПРЕВЬЮ ЗАГРУЗКА ==========
+function initPreviewUpload() {
+  const uploadArea = document.getElementById('preview-upload-area');
+  const fileInput = document.getElementById('preview-upload');
+  const previewImage = document.getElementById('preview-image');
+  const removeBtn = document.getElementById('remove-preview-btn');
+  const placeholder = document.getElementById('preview-placeholder');
+  
+  if (!uploadArea || !fileInput || !previewImage) return;
+  
+  // Клик по области загрузки
+  uploadArea.addEventListener('click', function(e) {
+    // Не открываем диалог, если клик по кнопке удаления
+    if (e.target === removeBtn || removeBtn.contains(e.target)) return;
+    fileInput.click();
+  });
+  
+  // Выбор файла
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Проверка типа файла
+    if (!file.type.startsWith('image/')) {
+      window.showNotification('❌ Можно загружать только изображения', 'error');
+      return;
+    }
+    
+    // Проверка размера (макс 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      window.showNotification('❌ Изображение слишком большое (макс 5MB)', 'error');
+      return;
+    }
+    
+    const reader = new FileReader();
+    
+    reader.onload = function(ev) {
+      previewImage.src = ev.target.result;
+      previewImage.classList.remove('hidden');
+      
+      // Скрываем область загрузки через CSS, но оставляем для возможности повторной загрузки
+      uploadArea.style.display = 'none';
+      
+      window.showNotification('✅ Превью загружено', 'success');
+      
+      // Сохраняем в localStorage если есть функция
+      if (typeof saveDraft === 'function') saveDraft();
+    };
+    
+    reader.onerror = function() {
+      window.showNotification('❌ Ошибка загрузки файла', 'error');
+    };
+    
+    reader.readAsDataURL(file);
+  });
+  
+  // Кнопка удаления
+  if (removeBtn) {
+    removeBtn.addEventListener('click', function() {
       previewImage.src = '';
       previewImage.classList.add('hidden');
-      previewUploadArea.style.display = 'flex';
-      previewUpload.value = '';
+      uploadArea.style.display = 'flex';
+      fileInput.value = '';
       window.showNotification('🗑️ Превью удалено', 'success');
+      
+      // Сохраняем в localStorage если есть функция
+      if (typeof saveDraft === 'function') saveDraft();
     });
   }
+  
+  // Drag & Drop
+  uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--accent-blue)';
+    this.style.background = 'var(--bg-element-hover)';
+  });
+  
+  uploadArea.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '';
+    this.style.background = '';
+  });
+  
+  uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '';
+    this.style.background = '';
+    
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      window.showNotification('❌ Можно загружать только изображения', 'error');
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      window.showNotification('❌ Изображение слишком большое (макс 5MB)', 'error');
+      return;
+    }
+    
+    // Создаём событие change для fileInput
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    fileInput.files = dataTransfer.files;
+    
+    // Триггерим событие change
+    const event = new Event('change', { bubbles: true });
+    fileInput.dispatchEvent(event);
+  });
+}
 
   // ========== КОМБОБОКС ==========
   function initCombobox() {
@@ -149,10 +241,70 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function generatePreview() {
-    // Простая генерация превью
-    return `<div style="padding: 20px;">Превью статьи</div>`;
+  const title = document.getElementById('article-title').value;
+  const previewImage = document.getElementById('preview-image');
+  const tag = window.currentTag || 'РЕЛИЗ';
+  const date = new Date().toLocaleString('ru-RU');
+  
+  let blocksHTML = '';
+  
+  if (window.blocks && window.blocks.length > 0) {
+    window.blocks.forEach(block => {
+      if (block.type === 'text') {
+        blocksHTML += `<div style="margin: 20px 0; padding: 20px; background: var(--bg-element); border-radius: var(--radius-md);">${block.content || ''}</div>`;
+      }
+    });
   }
+  
+  return `
+    <div style="padding: 20px; background: var(--glass-bg); border-radius: var(--radius-lg);">
+      <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+        <span style="background: var(--accent-blue); padding: 6px 16px; border-radius: 30px; font-size: 0.9rem;">${tag}</span>
+        <span style="background: var(--bg-element); padding: 6px 16px; border-radius: 30px; font-size: 0.9rem;">${date}</span>
+      </div>
+      <h1 style="font-size: 2rem; margin-bottom: 20px;">${title}</h1>
+      ${previewImage.src && !previewImage.classList.contains('hidden') 
+        ? `<img src="${previewImage.src}" style="width: 100%; border-radius: var(--radius-md); margin-bottom: 20px;">` 
+        : ''}
+      ${blocksHTML || '<p style="color: var(--text-secondary);">Нет контента</p>'}
+    </div>
+  `;
+}
 
   // Запуск
   init();
+
+  // Загружаем демо-превью (для теста)
+function loadDemoPreview() {
+  const previewImage = document.getElementById('preview-image');
+  const uploadArea = document.getElementById('preview-upload-area');
+  
+  // Создаём тестовое изображение (серый квадрат с текстом)
+  const canvas = document.createElement('canvas');
+  canvas.width = 800;
+  canvas.height = 400;
+  const ctx = canvas.getContext('2d');
+  
+  // Рисуем градиентный фон
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, '#0a84ff');
+  gradient.addColorStop(1, '#5e5ceb');
+  
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Рисуем текст
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 40px -apple-system';
+  ctx.textAlign = 'center';
+  ctx.fillText('Превью статьи', canvas.width/2, canvas.height/2);
+  
+  // Конвертируем в data URL
+  previewImage.src = canvas.toDataURL('image/png');
+  previewImage.classList.remove('hidden');
+  uploadArea.style.display = 'none';
+}
+
+// Загружаем демо-превью (раскомментируй для теста)
+// loadDemoPreview();
 });
